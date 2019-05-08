@@ -15,7 +15,7 @@ public class Bayes {
 		m2 = calculaM(datos, "Iris-versicolor");
 		c1 = calculaCentro(datos, "Iris-setosa");
 		c2 = calculaCentro(datos, "Iris-versicolor");
-		inversa();
+		claseALaQuePertenece(new Dato(5.1, 3.5, 1.4, 0.2, "Iris-setosa"));
 	}
 
 	private Dato calculaM(Datos datos, String clase) {
@@ -38,23 +38,44 @@ public class Bayes {
 	}
 
 	private ArrayList<ArrayList<Double>> calculaCentro(Datos datos, String clase) {
-		ArrayList<ArrayList<Double>> sol = new ArrayList<>();
-		for (int i = 0; i < 4; i++) {
-			sol.add(new ArrayList<>());
-			for (int j = 0; j < 4; j++) {
-				sol.get(i).add(0.0);
+		Dato x_m1 = new Dato(datos.getData().get(0).getD1() - this.m1.getD1(), datos.getData().get(0).getD2() - this.m1.getD2(), datos.getData().get(0).getD3() - this.m1.getD3(),
+				datos.getData().get(0).getD4() - this.m1.getD4(), "");
+		// x-m2
+		Dato x_m2 = new Dato(datos.getData().get(0).getD1() - this.m2.getD1(), datos.getData().get(0).getD2() - this.m2.getD2(), datos.getData().get(0).getD3() - this.m2.getD3(),
+				datos.getData().get(0).getD4() - this.m2.getD4(), "");
+
+		double[][] x_m1_aux = { { x_m1.getD1(), x_m1.getD2(), x_m1.getD3(), x_m1.getD4() } };
+		double[][] x_m2_aux = { { x_m2.getD1(), x_m2.getD2(), x_m2.getD3(), x_m2.getD4() } };
+		Matrix x_m1_matrix = new Matrix(x_m1_aux);
+		Matrix x_m2_matrix = new Matrix(x_m2_aux);
+		Matrix sol_aux1 = x_m1_matrix.transpose().times(x_m1_matrix);
+		Matrix sol_aux2 = x_m2_matrix.transpose().times(x_m2_matrix);
+		double n1 = 1.00;
+		double n2 = 0.00;
+		for (int i = 1; i < datos.getData().size(); i++) {
+			if (datos.getData().get(i).getClase().equalsIgnoreCase(clase)) {
+				// x-m1
+				x_m1 = new Dato(datos.getData().get(i).getD1() - this.m1.getD1(), datos.getData().get(i).getD2() - this.m1.getD2(), datos.getData().get(i).getD3() - this.m1.getD3(),
+						datos.getData().get(i).getD4() - this.m1.getD4(), "");
+				double[][] x_m1_aux_ = { { x_m1.getD1(), x_m1.getD2(), x_m1.getD3(), x_m1.getD4() } };
+				Matrix x_m1_matrix_ = new Matrix(x_m1_aux_);
+				sol_aux1 = sol_aux1.plus(x_m1_matrix_.transpose().times(x_m1_matrix_));
+				n1++;
+			}
+			else {
+				// x-m2
+				x_m2 = new Dato(datos.getData().get(i).getD1() - this.m2.getD1(), datos.getData().get(i).getD2() - this.m2.getD2(), datos.getData().get(i).getD3() - this.m2.getD3(),
+						datos.getData().get(i).getD4() - this.m2.getD4(), "");
+				double[][] x_m2_aux_ = { { x_m2.getD1(), x_m2.getD2(), x_m2.getD3(), x_m2.getD4() } };
+				Matrix x_m2_matrix_ = new Matrix(x_m2_aux_);
+				sol_aux2 = sol_aux2.plus(x_m2_matrix_.transpose().times(x_m2_matrix_));
+				n2++;
 			}
 		}
-		double n = 0.00;
-		for (int i = 0; i < datos.getData().size(); i++) {
-			if(datos.getData().get(i).getClase().equalsIgnoreCase(clase)) {
-				n++;
-				ArrayList<ArrayList<Double>> m_aux = multiplicarPorTraspuesta(datos.getData().get(i));
-				sol = sumarMatrices(sol,m_aux);
-			}
-		}
-		sol = divideMatriz(sol, n);
-		return sol;
+		sol_aux1 = sol_aux1.times(1/n1);
+		sol_aux2 = sol_aux2.times(1/n2);
+		System.out.println("P");
+		return null;
 	}
 
 	private ArrayList<ArrayList<Double>> multiplicarPorTraspuesta(Dato dato) {
@@ -73,7 +94,9 @@ public class Bayes {
 		}
 		return matriz;
 	}
-	private ArrayList<ArrayList<Double>> sumarMatrices(ArrayList<ArrayList<Double>> m1, ArrayList<ArrayList<Double>> m2){
+
+	private ArrayList<ArrayList<Double>> sumarMatrices(ArrayList<ArrayList<Double>> m1,
+			ArrayList<ArrayList<Double>> m2) {
 		ArrayList<ArrayList<Double>> sol = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			sol.add(new ArrayList<>());
@@ -81,14 +104,15 @@ public class Bayes {
 				sol.get(i).add(0.0);
 			}
 		}
-		for(int i = 0; i < m1.size(); i++) {
+		for (int i = 0; i < m1.size(); i++) {
 			for (int j = 0; j < m1.get(i).size(); j++) {
 				sol.get(i).set(j, m1.get(i).get(j) + m2.get(i).get(j));
 			}
 		}
 		return sol;
 	}
-	private ArrayList<ArrayList<Double>> divideMatriz(ArrayList<ArrayList<Double>> m1, double n){
+
+	private ArrayList<ArrayList<Double>> divideMatriz(ArrayList<ArrayList<Double>> m1, double n) {
 		ArrayList<ArrayList<Double>> sol = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			sol.add(new ArrayList<>());
@@ -96,66 +120,83 @@ public class Bayes {
 				sol.get(i).add(0.0);
 			}
 		}
-		for(int i = 0; i < m1.size(); i++) {
-			for(int j = 0; j < m1.get(i).size(); j++) {
+		for (int i = 0; i < m1.size(); i++) {
+			for (int j = 0; j < m1.get(i).size(); j++) {
 				sol.get(i).set(j, m1.get(i).get(j) / n);
 			}
 		}
 		return sol;
 	}
+
 	private String claseALaQuePertenece(Dato x) {
-		//dm1
-		//x-m1
-		Dato x_m1 = new Dato(x.getD1() - this.m1.getD1(),x.getD2() - this.m1.getD2(),
-				x.getD3() - this.m1.getD3(),x.getD4() - this.m1.getD4(),"");
-		Dato x_m2 = new Dato(x.getD1() - this.m2.getD1(),x.getD2() - this.m2.getD2(),
-				x.getD3() - this.m2.getD3(),x.getD4() - this.m2.getD4(),"");
-		//MULTIPLICACIÓN
-		//INICIALIZACIÓN
-		ArrayList<ArrayList<Double>> res_m1 = new ArrayList<>();
-		for(int i = 0; i < res_m1.size(); i++) {
-			res_m1.add(new ArrayList<>());
-			for(int j = 0; j < res_m1.get(i).size(); j++) {
-				res_m1.get(i).set(j, 0.0);
+		// dm1
+		// x-m1
+		Dato x_m1 = new Dato(x.getD1() - this.m1.getD1(), x.getD2() - this.m1.getD2(), x.getD3() - this.m1.getD3(),
+				x.getD4() - this.m1.getD4(), "");
+		// x-m2
+		Dato x_m2 = new Dato(x.getD1() - this.m2.getD1(), x.getD2() - this.m2.getD2(), x.getD3() - this.m2.getD3(),
+				x.getD4() - this.m2.getD4(), "");
+
+		double[][] x_m1_aux = { { x_m1.getD1(), x_m1.getD2(), x_m1.getD3(), x_m1.getD4() } };
+		double[][] x_m2_aux = { { x_m2.getD1(), x_m2.getD2(), x_m2.getD3(), x_m2.getD4() } };
+		Matrix x_m1_matrix = new Matrix(x_m1_aux);
+		Matrix x_m2_matrix = new Matrix(x_m2_aux);
+		// MULTIPLICACIÓN
+		// INICIALIZACIÓN
+		double[][] array_c1 = { { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 },
+				{ 0.0, 0.0, 0.0, 0.0 } };
+		double[][] array_c2 = { { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 },
+				{ 0.0, 0.0, 0.0, 0.0 } };
+
+		for (int i = 0; i < c1.size(); i++) {
+			for (int j = 0; j < c1.get(i).size(); j++) {
+				array_c1[i][j] = c1.get(i).get(j);
+				array_c2[i][j] = c2.get(i).get(j);
 			}
 		}
-		ArrayList<ArrayList<Double>> res_m2 = new ArrayList<>();
-		for(int i = 0; i < res_m2.size(); i++) {
-			res_m2.add(new ArrayList<>());
-			for(int j = 0; j < res_m2.get(i).size(); j++) {
-				res_m2.get(i).set(j, 0.0);
-			}
-		}
-		//MULTIPLICACIÓN
-		Double[] datos_aux_x_m1 = { x_m1.getD1(), x_m1.getD2(), x_m1.getD3(), x_m1.getD4() };
-		for(int i = 0; i < res_m1.size(); i++) {
-			for(int j = 0; j < res_m1.get(i).size(); j++) {
-				res_m1.get(i).set(j, null);
-			}
-		}
+
+		Matrix c1_matrix = new Matrix(array_c1);
+		Matrix c2_matrix = new Matrix(array_c2);
+
+		// INVERSA
+		Matrix c1_matrix_inversa = c1_matrix.inverse();
+		Matrix c2_matrix_inversa = c2_matrix.inverse();
+
+		// MULTIPLICO (x-m) * c^-1
+		Matrix m_m1MUL_c1_matrix_inversa = x_m1_matrix.times(c1_matrix_inversa);
+		Matrix m_m2MUL_c2_matrix_inversa = x_m2_matrix.times(c2_matrix_inversa);
+
+		// MULTIPLICO EL RESULTADO ANTERIOR POR LA TRASPUESTA DE x-m
+
+		Matrix sol_1 = m_m1MUL_c1_matrix_inversa.times(x_m1_matrix.transpose());
+		Matrix sol_2 = m_m2MUL_c2_matrix_inversa.times(x_m2_matrix.transpose());
+
+		System.out.println(sol_1.getArray());
 		return "";
 	}
+
 	private ArrayList<ArrayList<Double>> inversa(ArrayList<ArrayList<Double>> m) {
-		double[][] array = {{0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0}};
+		double[][] array = { { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 },
+				{ 0.0, 0.0, 0.0, 0.0 } };
 		for (int i = 0; i < m.size(); i++) {
-			for(int j = 0; j < m.get(i).size(); j++) {
+			for (int j = 0; j < m.get(i).size(); j++) {
 				array[i][j] = m.get(i).get(j);
 			}
 		}
-		//double[][] array = {{2.0,0.0,1.0},{3.0,0.0,0.0},{5.0,1.0,1.0}};
+		// double[][] array = {{2.0,0.0,1.0},{3.0,0.0,0.0},{5.0,1.0,1.0}};
 		Matrix A = new Matrix(array);
 		Matrix inv = A.inverse();
 		System.out.println("PAUSE");
 		double[][] aux_ = inv.getArray();
 		ArrayList<ArrayList<Double>> m_inversa = new ArrayList<>();
-		for(int i = 0; i < aux_.length; i++) {
+		for (int i = 0; i < aux_.length; i++) {
 			m_inversa.add(new ArrayList<>());
-			for(int j = 0; j < aux_[i].length; j++) {
+			for (int j = 0; j < aux_[i].length; j++) {
 				m_inversa.get(i).add(0.0);
 			}
 		}
-		for(int i = 0; i < aux_.length; i++) {
-			for(int j = 0; j < aux_[i].length; j++) {
+		for (int i = 0; i < aux_.length; i++) {
+			for (int j = 0; j < aux_[i].length; j++) {
 				m_inversa.get(i).set(j, aux_[i][j]);
 			}
 		}
