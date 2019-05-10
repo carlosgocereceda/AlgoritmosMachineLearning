@@ -14,7 +14,11 @@ public class Bayes {
 		m2 = calculaM(datos, "Iris-versicolor");
 		c1 = calculaCentro(new ArrayList<Dato>( datos.getData().subList(0, 50)), "Iris-setosa");
 		c2 = calculaCentro(new ArrayList<Dato>( datos.getData().subList(50, 100)), "Iris-versicolor");
-		claseALaQuePertenece(new Dato(5.1, 3.5, 1.4, 0.2, "Iris-setosa"));
+		System.out.println(claseALaQuePertenece(new Dato(5.1, 3.5, 1.4, 0.2, "Iris-setosa")));
+		System.out.println(claseALaQuePertenece(new Dato(6.9,3.1,4.9,1.5,"Iris-versicolor")));
+		System.out.println(claseALaQuePertenece(new Dato(5.0,3.4,1.5,0.2,"Iris-setosa")));
+		
+		
 	}
 
 	private Dato calculaM(Datos datos, String clase) {
@@ -91,8 +95,8 @@ public class Bayes {
 		Matrix sol_1 = m_m1MUL_c1_matrix_inversa.times(x_m1_matrix.transpose());
 		Matrix sol_2 = m_m2MUL_c2_matrix_inversa.times(x_m2_matrix.transpose());
 
-		System.out.println(sol_1.getArray());
-		return "";
+		if(sol_1.getArray()[0][0] < sol_2.getArray()[0][0]) return m1.getClase();
+		else return m2.getClase();
 	}
 
 }
