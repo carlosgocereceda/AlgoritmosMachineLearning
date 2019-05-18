@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import negocio.Bayes;
 import negocio.Datos;
+import negocio.KMedias;
 import negocio.Lloyd;
 
 
@@ -32,7 +33,9 @@ public class Lectura {
 		System.out.println("PAUSA");
 		/*Lloyd lloyd = new Lloyd();
 		lloyd.algoritmo(datos);*/
-		Bayes bayes = new Bayes();
-		bayes.algoritmo(datos);
+		/*Bayes bayes = new Bayes();
+		bayes.algoritmo(datos);*/
+		KMedias kmedias = new KMedias();
+		kmedias.algoritmo(datos);
 	}
 }
