@@ -51,4 +51,11 @@ public class Lloyd {
 		aux.setD4(centro.getD4() + aux.getD4());
 		return aux;
 	}
+	public String claseALaQuePertenece(Dato d) {
+		double d1, d2;
+		d1 = distancia(d, centro1);
+		d2 = distancia(d, centro2);
+		if(d1 < d2) return centro1.getClase();
+		else return centro2.getClase();
+	}
 }

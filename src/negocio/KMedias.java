@@ -84,11 +84,11 @@ public class KMedias {
 		sol.add(nuevo_v2);
 		return sol;
 	}
-	private void getClasePertenece(Dato x) {
+	public String getClasePertenece(Dato x) {
 		if(calculaD(this.v1, x) < calculaD(this.v2, x)) {
-			System.out.println("Iris setosa");
+			return("Iris setosa");
 		}
-		else System.out.println("Iris versicolor");
+		else return("Iris versicolor");
 	}
 
 }

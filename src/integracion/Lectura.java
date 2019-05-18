@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+
 import negocio.Bayes;
 import negocio.Datos;
 import negocio.KMedias;
 import negocio.Lloyd;
+import presentacion.Ventan;
 
 
 public class Lectura {
@@ -35,7 +38,14 @@ public class Lectura {
 		lloyd.algoritmo(datos);*/
 		/*Bayes bayes = new Bayes();
 		bayes.algoritmo(datos);*/
-		KMedias kmedias = new KMedias();
-		kmedias.algoritmo(datos);
+		/*KMedias kmedias = new KMedias();
+		kmedias.algoritmo(datos);*/
+		
+		Ventan v = new Ventan(datos);
+		JFrame frame = new JFrame("PRACTICA 3");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(700, 400);
+		frame.getContentPane().add(v);
+		frame.setVisible(true);
 	}
 }

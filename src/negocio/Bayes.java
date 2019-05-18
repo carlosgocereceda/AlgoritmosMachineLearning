@@ -67,7 +67,7 @@ public class Bayes {
 		return sol_aux;
 	}
 
-	private String claseALaQuePertenece(Dato x) {
+	public String claseALaQuePertenece(Dato x) {
 		// dm1
 		// x-m1
 		Dato x_m1 = new Dato(x.getD1() - this.m1.getD1(), x.getD2() - this.m1.getD2(), x.getD3() - this.m1.getD3(),
